@@ -19,7 +19,7 @@ pub struct ServerConfig {
 pub struct DatabaseConfig {
     pub host: String,
     pub port: u16,
-    pub username: String,
+    pub user: String,
     pub password: String,
     pub database: String,
 }
@@ -36,7 +36,7 @@ impl Config {
         let database = DatabaseConfig {
             host: env::var("FORGE_DATABASE_HOST").unwrap_or_else(|_| "localhost".to_string()),
             port: Self::parse_port("FORGE_DATABASE_PORT", "5432")?,
-            username: Self::require_var("FORGE_DATABASE_USERNAME")?,
+            user: Self::require_var("FORGE_DATABASE_USER")?,
             password: Self::require_var("FORGE_DATABASE_PASSWORD")?,
             database: Self::require_var("FORGE_DATABASE_NAME")?,
         };
