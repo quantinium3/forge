@@ -1,0 +1,2 @@
+sudo dnf install libpq-devel
+sudo apt install libpq-dev
