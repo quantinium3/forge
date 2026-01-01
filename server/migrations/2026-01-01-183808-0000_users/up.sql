@@ -15,8 +15,8 @@ create table users (
 	created_at timestamptz not null default now(),
 	updated_at timestamptz not null default now(),
 	last_login timestamptz,
-
-	index idx_email (email),
-	index idx_username (username),
-	index idx_role (role)
 );
+
+create unique index idx_email on users(email);
+create unique index idx_username on users(username);
+create index idx_role on users(role);
