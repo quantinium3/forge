@@ -6,4 +6,4 @@ create table password_history (
 	created_at timestamptz not null default now()
 );
 
-create index idx_user_id on password_history(user_id);
+create index idx_password_history_user_id_created_at on password_history(user_id, created_at desc);

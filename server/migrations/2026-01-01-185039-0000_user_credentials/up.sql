@@ -10,12 +10,10 @@ create table user_credentials (
 	failed_login_attempts int not null default 0,
 	last_failed_login_at timestamptz,
 
-	totp_secret varchar(6),
+	totp_secret varchar(64),
 	totp_enabled boolean not null default false,
-	backup_codes text[],
+	backup_codes_hashed text[],
 
 	created_at timestamptz not null default now(),
-	updated_at timestamptz not null default now(),
+	updated_at timestamptz not null default now()
 );
-
-create index idx_user_id on user_credentials (user_id);
