@@ -1,20 +1,19 @@
 use anyhow::{Context, Result};
 use axum::{Router, routing::get, serve};
-use axum::{extract::State, http::StatusCode, response::IntoResponse};
 use deadpool_diesel::postgres::Pool;
-use diesel::prelude::*;
 use std::net::{IpAddr, SocketAddr};
 use std::sync::Arc;
 use tokio::net::TcpListener;
 use tower_http::trace::{DefaultMakeSpan, DefaultOnResponse, TraceLayer};
-use tracing::{Level, error, info};
+use tracing::{Level, info};
 use tracing_subscriber::{fmt::time::ChronoUtc, layer::SubscriberExt, util::SubscriberInitExt};
 
 mod config;
 mod db;
+mod handlers;
 
 #[derive(Clone)]
-struct AppState {
+pub struct AppState {
     config: Arc<config::Config>,
     db_pool: Pool,
 }
@@ -61,7 +60,7 @@ async fn main() -> Result<()> {
         .with_context(|| format!("Failed to bind to {addr}"))?;
 
     let app = Router::new()
-        .route("/health", get(health))
+        .route("/health", get(handlers::health::health))
         .layer(
             TraceLayer::new_for_http()
                 .make_span_with(DefaultMakeSpan::new().level(Level::INFO))
@@ -75,30 +74,6 @@ async fn main() -> Result<()> {
         .await
         .context("Server shutdown")?;
     Ok(())
-}
-
-async fn health(State(state): State<AppState>) -> impl IntoResponse {
-    let conn = match state.db_pool.get().await {
-        Ok(c) => c,
-        Err(e) => {
-            error!("Health check failed to get DB connection: {}", e);
-            return (StatusCode::SERVICE_UNAVAILABLE, "DB_CONNECTION_ERROR");
-        }
-    };
-
-    let result = conn
-        .interact(|c| {
-            diesel::select(diesel::dsl::sql::<diesel::sql_types::Integer>("1")).get_result::<i32>(c)
-        })
-        .await;
-
-    match result {
-        Ok(Ok(_)) => (StatusCode::OK, "OK"),
-        _ => {
-            error!("Health check DB query failed");
-            (StatusCode::SERVICE_UNAVAILABLE, "DB_QUERY_ERROR")
-        }
-    }
 }
 
 async fn shutdown() {
