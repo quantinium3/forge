@@ -1,11 +1,5 @@
 // @generated automatically by Diesel CLI.
 
-pub mod sql_types {
-    #[derive(diesel::query_builder::QueryId, Clone, diesel::sql_types::SqlType)]
-    #[diesel(postgres_type(name = "verification_token_type"))]
-    pub struct VerificationTokenType;
-}
-
 diesel::table! {
     password_history (id) {
         id -> Uuid,
@@ -29,6 +23,23 @@ diesel::table! {
 }
 
 diesel::table! {
+    refresh_tokens (id) {
+        id -> Uuid,
+        user_id -> Uuid,
+        #[max_length = 255]
+        token_hash -> Varchar,
+        #[max_length = 255]
+        device_name -> Nullable<Varchar>,
+        #[max_length = 50]
+        device_type -> Nullable<Varchar>,
+        expires_at -> Timestamptz,
+        revoked -> Bool,
+        created_at -> Timestamptz,
+        family_id -> Uuid,
+    }
+}
+
+diesel::table! {
     role_permissions (role_id, permission_id) {
         role_id -> Uuid,
         permission_id -> Uuid,
@@ -43,32 +54,6 @@ diesel::table! {
         #[max_length = 255]
         name -> Varchar,
         created_at -> Timestamptz,
-    }
-}
-
-diesel::table! {
-    sessions (id) {
-        id -> Uuid,
-        user_id -> Uuid,
-        #[max_length = 255]
-        token_hash -> Varchar,
-        #[max_length = 255]
-        device_name -> Nullable<Varchar>,
-        #[max_length = 50]
-        device_type -> Nullable<Varchar>,
-        ip_address -> Inet,
-        user_agent -> Nullable<Text>,
-        #[max_length = 2]
-        country_code -> Nullable<Varchar>,
-        #[max_length = 255]
-        city -> Nullable<Varchar>,
-        created_at -> Timestamptz,
-        last_used_at -> Timestamptz,
-        expires_at -> Timestamptz,
-        revoked -> Bool,
-        revoked_at -> Nullable<Timestamptz>,
-        #[max_length = 255]
-        revoke_reason -> Nullable<Varchar>,
     }
 }
 
@@ -138,7 +123,6 @@ diesel::table! {
         username -> Varchar,
         #[max_length = 255]
         email -> Varchar,
-        email_verified -> Bool,
         #[max_length = 255]
         role -> Varchar,
         is_active -> Bool,
@@ -152,44 +136,24 @@ diesel::table! {
     }
 }
 
-diesel::table! {
-    use diesel::sql_types::*;
-    use super::sql_types::VerificationTokenType;
-
-    verification_tokens (id) {
-        id -> Uuid,
-        user_id -> Uuid,
-        #[max_length = 255]
-        token_hash -> Varchar,
-        token_type -> VerificationTokenType,
-        #[max_length = 255]
-        email -> Varchar,
-        expires_at -> Timestamptz,
-        used_at -> Nullable<Timestamptz>,
-        created_at -> Timestamptz,
-    }
-}
-
 diesel::joinable!(password_history -> users (user_id));
+diesel::joinable!(refresh_tokens -> users (user_id));
 diesel::joinable!(role_permissions -> permissions (permission_id));
 diesel::joinable!(role_permissions -> roles (role_id));
-diesel::joinable!(sessions -> users (user_id));
 diesel::joinable!(user_credentials -> users (user_id));
 diesel::joinable!(user_permissions -> permissions (permission_id));
 diesel::joinable!(user_profiles -> users (user_id));
 diesel::joinable!(user_roles -> roles (role_id));
-diesel::joinable!(verification_tokens -> users (user_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     password_history,
     permissions,
+    refresh_tokens,
     role_permissions,
     roles,
-    sessions,
     user_credentials,
     user_permissions,
     user_profiles,
     user_roles,
     users,
-    verification_tokens,
 );
