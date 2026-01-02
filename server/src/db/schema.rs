@@ -119,12 +119,8 @@ diesel::table! {
 diesel::table! {
     users (id) {
         id -> Uuid,
-        #[max_length = 255]
-        username -> Varchar,
-        #[max_length = 255]
-        email -> Varchar,
-        #[max_length = 255]
-        role -> Varchar,
+        username -> Citext,
+        email -> Citext,
         is_active -> Bool,
         is_banned -> Bool,
         banned_until -> Nullable<Timestamptz>,
