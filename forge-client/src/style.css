@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+@theme {
+  --color-bronze: #d29670;
+  --color-teal: #7fc3bb;
+  --color-mint: #6fc892;
+  --color-sand: #e5e4dc;
+  --color-charcoal: #0f0f0f;
+}
