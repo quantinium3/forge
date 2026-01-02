@@ -10,6 +10,7 @@ use tracing_subscriber::{fmt::time::ChronoUtc, layer::SubscriberExt, util::Subsc
 
 mod config;
 mod db;
+mod error;
 mod handlers;
 
 #[derive(Clone)]
