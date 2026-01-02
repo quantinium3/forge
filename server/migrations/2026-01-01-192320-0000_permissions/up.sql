@@ -1,13 +1,13 @@
 -- Your SQL goes here
 create table roles (
-	id uuid primary key default gen_random_uuid(),
+	id uuid primary key,
 	slug varchar(255) not null unique, -- 'admin', 'user'
 	name varchar(255) not null unique,
 	created_at timestamptz not null default now()
 );
 
 create table permissions (
-	id uuid primary key default gen_random_uuid(),
+	id uuid primary key,
 	name varchar(255) not null unique,
 	description text not null,
 	category varchar(255) not null,

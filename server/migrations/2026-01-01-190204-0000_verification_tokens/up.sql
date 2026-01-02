@@ -1,7 +1,7 @@
 -- Your SQL goes here
 create type verification_token_type as enum ('email_verification', 'password_reset');
 create table verification_tokens (
-	id uuid primary key default gen_random_uuid(),
+	id uuid primary key,
 	user_id uuid not null references users(id) on delete cascade,
 	token_hash varchar(255) not null unique,
 	token_type verification_token_type not null,
