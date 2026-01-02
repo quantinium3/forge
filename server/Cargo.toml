@@ -15,5 +15,7 @@ tower = { version = "0.5.2", features = ["tracing"] }
 tower-http = { version = "0.6.8", features = ["trace"] }
 tracing = "0.1.44"
 tracing-subscriber = { version = "0.3.22", features = ["ansi", "chrono", "env-filter", "fmt", "json", "registry"] }
-diesel = { version = "2.2.0", features = ["postgres"] }
+diesel = { version = "2.2.0", features = ["postgres", "chrono", "uuid"] } 
 deadpool-diesel = { version = "0.6.1", features = ["postgres", "tracing"] }
+uuid = { version = "1.19.0", features = ["v7"] }
+thiserror = "2.0.17"
