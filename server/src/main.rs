@@ -1,6 +1,7 @@
 use anyhow::{Context, Result};
 use axum::{Router, routing::get, serve};
-use deadpool_diesel::postgres::Pool;
+use diesel_async::AsyncPgConnection;
+use diesel_async::pooled_connection::deadpool::Pool;
 use std::net::{IpAddr, SocketAddr};
 use std::sync::Arc;
 use tokio::net::TcpListener;
@@ -9,14 +10,16 @@ use tracing::{Level, info};
 use tracing_subscriber::{fmt::time::ChronoUtc, layer::SubscriberExt, util::SubscriberInitExt};
 
 mod config;
+mod consts;
 mod db;
 mod error;
 mod handlers;
+mod utils;
 
 #[derive(Clone)]
 pub struct AppState {
     config: Arc<config::Config>,
-    db_pool: Pool,
+    db_pool: Pool<AsyncPgConnection>,
 }
 
 #[tokio::main]
