@@ -1,28 +1,31 @@
 use crate::AppState;
-use axum::{extract::State, http::StatusCode, response::IntoResponse};
-use diesel::RunQueryDsl;
+use crate::error::{AppError, AppResult};
+use axum::{Json, extract::State};
+use diesel_async::RunQueryDsl;
+use serde::Serialize;
 use tracing::error;
 
-pub async fn health(State(state): State<AppState>) -> impl IntoResponse {
-    let conn = match state.db_pool.get().await {
-        Ok(c) => c,
-        Err(e) => {
-            error!("Health check failed to get DB connection: {}", e);
-            return (StatusCode::SERVICE_UNAVAILABLE, "DB_CONNECTION_ERROR");
-        }
-    };
+#[derive(Serialize)]
+pub struct HealthResponse {
+    pub status: String,
+}
 
-    let result = conn
-        .interact(|c| {
-            diesel::select(diesel::dsl::sql::<diesel::sql_types::Integer>("1")).get_result::<i32>(c)
-        })
-        .await;
+pub async fn health(State(state): State<AppState>) -> AppResult<Json<HealthResponse>> {
+    let mut conn = state
+        .db_pool
+        .get()
+        .await
+        .map_err(|_| AppError::DatabaseConnectionError)?;
 
-    match result {
-        Ok(Ok(_)) => (StatusCode::OK, "OK"),
-        _ => {
-            error!("Health check DB query failed");
-            (StatusCode::SERVICE_UNAVAILABLE, "DB_QUERY_ERROR")
-        }
-    }
+    diesel::sql_query("SELECT 1")
+        .execute(&mut conn)
+        .await
+        .map_err(|e| {
+            error!("Database health check failed: {}", e);
+            AppError::DatabaseError(e)
+        })?;
+
+    Ok(Json(HealthResponse {
+        status: "Ok".to_string(),
+    }))
 }
