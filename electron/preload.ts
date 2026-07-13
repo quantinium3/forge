@@ -5,6 +5,9 @@ const api: IpcApi = {
   hello: {
     helloWorld: () => ipcRenderer.invoke('hello:helloWorld'),
   },
+  db: {
+    ping: () => ipcRenderer.invoke('db:ping'),
+  },
 }
 
 contextBridge.exposeInMainWorld('api', api)

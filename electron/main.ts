@@ -1,7 +1,9 @@
 import { app, BrowserWindow } from 'electron'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
+import { sql } from 'drizzle-orm'
 import { registerIpcHandlers } from './ipc/domains'
+import { db } from './db'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -65,6 +67,7 @@ app.on('activate', () => {
 })
 
 app.whenReady().then(() => {
+  console.log('db startup check:', db.get(sql`select 1`))
   registerIpcHandlers()
   createWindow()
 })

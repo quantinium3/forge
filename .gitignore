@@ -26,3 +26,8 @@ dist-ssr
 dist-electron
 release
 dist
+
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
