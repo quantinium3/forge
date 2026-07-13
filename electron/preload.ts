@@ -1,24 +1,26 @@
 import { ipcRenderer, contextBridge } from 'electron'
 
-// --------- Expose some API to the Renderer process ---------
-contextBridge.exposeInMainWorld('ipcRenderer', {
-  on(...args: Parameters<typeof ipcRenderer.on>) {
-    const [channel, listener] = args
-    return ipcRenderer.on(channel, (event, ...args) => listener(event, ...args))
+const api = new Proxy(
+  {},
+  {
+    get(_target, domain: string) {
+      return new Proxy(
+        {},
+        {
+          get(_t, method: string) {
+            return (...args: unknown[]) => ipcRenderer.invoke(`${domain}:${method}`, ...args)
+          },
+        },
+      )
+    },
   },
-  off(...args: Parameters<typeof ipcRenderer.off>) {
-    const [channel, ...omit] = args
-    return ipcRenderer.off(channel, ...omit)
-  },
-  send(...args: Parameters<typeof ipcRenderer.send>) {
-    const [channel, ...omit] = args
-    return ipcRenderer.send(channel, ...omit)
-  },
-  invoke(...args: Parameters<typeof ipcRenderer.invoke>) {
-    const [channel, ...omit] = args
-    return ipcRenderer.invoke(channel, ...omit)
-  },
+)
 
-  // You can expose other APTs you need here.
-  // ...
+contextBridge.exposeInMainWorld('api', api)
+
+contextBridge.exposeInMainWorld('ipcEvents', {
+  on(channel: string, listener: (event: Electron.IpcRendererEvent, ...args: unknown[]) => void) {
+    ipcRenderer.on(channel, listener)
+    return () => ipcRenderer.off(channel, listener)
+  },
 })
