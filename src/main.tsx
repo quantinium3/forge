@@ -1,15 +1,32 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.tsx'
-import './index.css'
+import { StrictMode } from "react";
+import ReactDOM from "react-dom/client";
+import {
+  RouterProvider,
+  createHashHistory,
+  createRouter,
+} from "@tanstack/react-router";
+import "./index.css";
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-)
+import { routeTree } from "./routeTree.gen";
+import { TooltipProvider } from "./components/ui/tooltip";
 
-// Use contextBridge
-window.ipcRenderer.on('main-process-message', (_event, message) => {
-  console.log(message)
-})
+const history = createHashHistory();
+const router = createRouter({ routeTree, history });
+
+declare module "@tanstack/react-router" {
+  interface Register {
+    router: typeof router;
+  }
+}
+
+const rootElement = document.getElementById("root")!;
+if (!rootElement.innerHTML) {
+  const root = ReactDOM.createRoot(rootElement);
+  root.render(
+    <StrictMode>
+      <TooltipProvider>
+        <RouterProvider router={router} />
+      </TooltipProvider>
+    </StrictMode>,
+  );
+}
