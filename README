@@ -1,0 +1,10 @@
+# FORGE
+
+- packages to install
+  - tanstack router
+  - tailwind
+  - shadcn
+  - tanstack form
+  - zod
+  - drizzle
+  - bettersqlite3
