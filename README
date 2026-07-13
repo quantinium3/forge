@@ -1,9 +1,9 @@
 # FORGE
 
 - packages to install
-  - tanstack router
-  - tailwind
-  - shadcn
+  - tanstack router x
+  - tailwind x
+  - shadcn x
   - tanstack form
   - zod
   - electron ipc setup
