@@ -1,20 +1,11 @@
 import { ipcRenderer, contextBridge } from 'electron'
+import type { IpcApi } from './ipc/domains'
 
-const api = new Proxy(
-  {},
-  {
-    get(_target, domain: string) {
-      return new Proxy(
-        {},
-        {
-          get(_t, method: string) {
-            return (...args: unknown[]) => ipcRenderer.invoke(`${domain}:${method}`, ...args)
-          },
-        },
-      )
-    },
+const api: IpcApi = {
+  hello: {
+    helloWorld: () => ipcRenderer.invoke('hello:helloWorld'),
   },
-)
+}
 
 contextBridge.exposeInMainWorld('api', api)
 

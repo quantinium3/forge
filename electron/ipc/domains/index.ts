@@ -1,12 +1,9 @@
-import { registerAppDomain, type AppApi } from "./app"
-import { registerWindowDomain, type WindowApi } from "./window"
+import { registerHelloDomain, type HelloApi } from "./hello"
 
 export interface IpcApi {
-  app: AppApi
-  window: WindowApi
+  hello: HelloApi
 }
 
 export function registerIpcHandlers() {
-  registerAppDomain()
-  registerWindowDomain()
+  registerHelloDomain()
 }
