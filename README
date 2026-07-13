@@ -6,5 +6,6 @@
   - shadcn
   - tanstack form
   - zod
+  - electron ipc setup
   - drizzle
   - bettersqlite3
