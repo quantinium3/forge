@@ -8,6 +8,9 @@ const api: IpcApi = {
   db: {
     ping: () => ipcRenderer.invoke('db:ping'),
   },
+  util: {
+    openFile: () => ipcRenderer.invoke('util:openFile'),
+  },
 }
 
 contextBridge.exposeInMainWorld('api', api)
