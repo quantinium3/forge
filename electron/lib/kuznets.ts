@@ -135,6 +135,30 @@ export interface Variable {
   updated_at: number
 }
 
+export type FirewallProtocol = "tcp" | "udp"
+
+export interface FirewallRule {
+  id: number
+  port: number
+  protocol: string
+  comment: string | null
+  created_at: number
+}
+
+export interface FirewallState {
+  enabled: boolean
+  /** Always reachable and refused as a rule target, so the UI can never close
+   * the connection Forge itself depends on. */
+  ssh_port: number
+  rules: FirewallRule[]
+}
+
+export interface OpenPortInput {
+  port: number
+  protocol?: FirewallProtocol
+  comment?: string | null
+}
+
 export type DeploymentStatus = "pending" | "running" | "stopped" | "failed"
 
 export type RestartPolicy = "no" | "always" | "unless-stopped" | "on-failure"
@@ -147,8 +171,7 @@ export interface Deployment {
   container_port: number | null
   host_port: number | null
   domain: string | null
-  /** Secrets and variables under this path prefix become the container's env. */
-  env_prefix: string
+  env: EnvMapping[]
   restart_policy: string
   status: DeploymentStatus
   container_id: string | null
@@ -161,6 +184,20 @@ export interface Deployment {
  * locally and loaded via uploadImage, so the server must not try to pull them. */
 export type DeploymentSource = "registry" | "imported"
 
+/** Which store an env var's value is read from. */
+export type EnvSource = "secret" | "variable"
+
+/**
+ * Binds an env var name to a stored secret or variable. The name is independent
+ * of the key, so one secret can be exposed under whatever name an image expects.
+ * Values are read on the server at apply time and never travel through Forge.
+ */
+export interface EnvMapping {
+  name: string
+  source: EnvSource
+  key: string
+}
+
 export interface PutDeploymentInput {
   name: string
   image: string
@@ -168,7 +205,7 @@ export interface PutDeploymentInput {
   container_port?: number | null
   host_port?: number | null
   domain?: string | null
-  env_prefix?: string | null
+  env?: EnvMapping[]
   restart_policy?: RestartPolicy | null
 }
 
@@ -305,6 +342,38 @@ export async function uploadImage(localPort: number, tarball: Readable): Promise
     request.on("error", reject)
     tarball.on("error", reject)
     tarball.pipe(request)
+  })
+}
+
+export async function fetchFirewall(localPort: number): Promise<FirewallState> {
+  return kuznetsRequest<FirewallState>(localPort, "/api/firewall")
+}
+
+export async function setFirewall(
+  localPort: number,
+  input: { enabled: boolean; ssh_port: number },
+): Promise<FirewallState> {
+  return kuznetsRequest<FirewallState>(localPort, "/api/firewall", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  })
+}
+
+export async function openFirewallPort(
+  localPort: number,
+  input: OpenPortInput,
+): Promise<FirewallState> {
+  return kuznetsRequest<FirewallState>(localPort, "/api/firewall/ports", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  })
+}
+
+export async function closeFirewallPort(localPort: number, id: number): Promise<FirewallState> {
+  return kuznetsRequest<FirewallState>(localPort, `/api/firewall/ports/${id}`, {
+    method: "DELETE",
   })
 }
 

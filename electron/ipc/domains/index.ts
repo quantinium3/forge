@@ -9,6 +9,7 @@ import { registerSecretDomain, type SecretApi } from "./secret"
 import { registerVariableDomain, type VariableApi } from "./variable"
 import { registerOperationDomain, type OperationApi } from "./operation"
 import { registerDeploymentDomain, type DeploymentApi } from "./deployment"
+import { registerFirewallDomain, type FirewallApi } from "./firewall"
 
 export interface IpcApi {
   hello: HelloApi
@@ -22,6 +23,7 @@ export interface IpcApi {
   variable: VariableApi
   operation: OperationApi
   deployment: DeploymentApi
+  firewall: FirewallApi
 }
 
 export function registerIpcHandlers() {
@@ -36,4 +38,5 @@ export function registerIpcHandlers() {
   registerVariableDomain()
   registerOperationDomain()
   registerDeploymentDomain()
+  registerFirewallDomain()
 }

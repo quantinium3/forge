@@ -2,7 +2,7 @@ import { ipcRenderer, contextBridge } from 'electron'
 import type { IpcApi } from './ipc/domains'
 import type { CreateServerInput } from './ipc/domains/server'
 import type { DeployStaticInput } from './ipc/domains/deployment'
-import type { PutDeploymentInput } from './lib/kuznets'
+import type { OpenPortInput, PutDeploymentInput } from './lib/kuznets'
 
 const api: IpcApi = {
   hello: {
@@ -54,6 +54,15 @@ const api: IpcApi = {
     deployStatic: (serverId: string, input: DeployStaticInput) =>
       ipcRenderer.invoke('deployment:deployStatic', serverId, input),
     delete: (serverId: string, name: string) => ipcRenderer.invoke('deployment:delete', serverId, name),
+  },
+  firewall: {
+    get: (serverId: string) => ipcRenderer.invoke('firewall:get', serverId),
+    setEnabled: (serverId: string, enabled: boolean) =>
+      ipcRenderer.invoke('firewall:setEnabled', serverId, enabled),
+    openPort: (serverId: string, input: OpenPortInput) =>
+      ipcRenderer.invoke('firewall:openPort', serverId, input),
+    closePort: (serverId: string, ruleId: number) =>
+      ipcRenderer.invoke('firewall:closePort', serverId, ruleId),
   },
   secret: {
     list: (serverId: string) => ipcRenderer.invoke('secret:list', serverId),

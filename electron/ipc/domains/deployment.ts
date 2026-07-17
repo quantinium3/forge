@@ -15,6 +15,7 @@ import {
   putDeployment,
   uploadImage,
   type Deployment,
+  type EnvMapping,
   type Operation,
   type PutDeploymentInput,
 } from "../../lib/kuznets"
@@ -24,7 +25,7 @@ export interface DeployStaticInput {
   assetsDir: string
   spaFallback: boolean
   hostPort?: number | null
-  envPrefix?: string | null
+  env?: EnvMapping[]
   restartPolicy?: PutDeploymentInput["restart_policy"]
 }
 
@@ -99,7 +100,7 @@ export function registerDeploymentDomain() {
             source: "imported",
             container_port: STATIC_CONTAINER_PORT,
             host_port: input.hostPort ?? null,
-            env_prefix: input.envPrefix ?? null,
+            env: input.env ?? [],
             restart_policy: input.restartPolicy ?? "unless-stopped",
           }),
         )

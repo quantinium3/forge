@@ -11,12 +11,14 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SecretsRouteImport } from './routes/secrets'
 import { Route as PackageRouteImport } from './routes/package'
-import { Route as DeploymentsRouteImport } from './routes/deployments'
+import { Route as FirewallRouteImport } from './routes/firewall'
 import { Route as CommandCenterRouteImport } from './routes/command-center'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ServerIndexRouteImport } from './routes/server/index'
+import { Route as DeploymentsIndexRouteImport } from './routes/deployments/index'
 import { Route as ServerNewRouteImport } from './routes/server/new'
 import { Route as ServerIdRouteImport } from './routes/server/$id'
+import { Route as DeploymentsNewRouteImport } from './routes/deployments/new'
 
 const SecretsRoute = SecretsRouteImport.update({
   id: '/secrets',
@@ -28,9 +30,9 @@ const PackageRoute = PackageRouteImport.update({
   path: '/package',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DeploymentsRoute = DeploymentsRouteImport.update({
-  id: '/deployments',
-  path: '/deployments',
+const FirewallRoute = FirewallRouteImport.update({
+  id: '/firewall',
+  path: '/firewall',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CommandCenterRoute = CommandCenterRouteImport.update({
@@ -48,6 +50,11 @@ const ServerIndexRoute = ServerIndexRouteImport.update({
   path: '/server/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DeploymentsIndexRoute = DeploymentsIndexRouteImport.update({
+  id: '/deployments/',
+  path: '/deployments/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ServerNewRoute = ServerNewRouteImport.update({
   id: '/server/new',
   path: '/server/new',
@@ -58,36 +65,47 @@ const ServerIdRoute = ServerIdRouteImport.update({
   path: '/server/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DeploymentsNewRoute = DeploymentsNewRouteImport.update({
+  id: '/deployments/new',
+  path: '/deployments/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/command-center': typeof CommandCenterRoute
-  '/deployments': typeof DeploymentsRoute
+  '/firewall': typeof FirewallRoute
   '/package': typeof PackageRoute
   '/secrets': typeof SecretsRoute
+  '/deployments/new': typeof DeploymentsNewRoute
   '/server/$id': typeof ServerIdRoute
   '/server/new': typeof ServerNewRoute
+  '/deployments/': typeof DeploymentsIndexRoute
   '/server/': typeof ServerIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/command-center': typeof CommandCenterRoute
-  '/deployments': typeof DeploymentsRoute
+  '/firewall': typeof FirewallRoute
   '/package': typeof PackageRoute
   '/secrets': typeof SecretsRoute
+  '/deployments/new': typeof DeploymentsNewRoute
   '/server/$id': typeof ServerIdRoute
   '/server/new': typeof ServerNewRoute
+  '/deployments': typeof DeploymentsIndexRoute
   '/server': typeof ServerIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/command-center': typeof CommandCenterRoute
-  '/deployments': typeof DeploymentsRoute
+  '/firewall': typeof FirewallRoute
   '/package': typeof PackageRoute
   '/secrets': typeof SecretsRoute
+  '/deployments/new': typeof DeploymentsNewRoute
   '/server/$id': typeof ServerIdRoute
   '/server/new': typeof ServerNewRoute
+  '/deployments/': typeof DeploymentsIndexRoute
   '/server/': typeof ServerIndexRoute
 }
 export interface FileRouteTypes {
@@ -95,42 +113,50 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/command-center'
-    | '/deployments'
+    | '/firewall'
     | '/package'
     | '/secrets'
+    | '/deployments/new'
     | '/server/$id'
     | '/server/new'
+    | '/deployments/'
     | '/server/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/command-center'
-    | '/deployments'
+    | '/firewall'
     | '/package'
     | '/secrets'
+    | '/deployments/new'
     | '/server/$id'
     | '/server/new'
+    | '/deployments'
     | '/server'
   id:
     | '__root__'
     | '/'
     | '/command-center'
-    | '/deployments'
+    | '/firewall'
     | '/package'
     | '/secrets'
+    | '/deployments/new'
     | '/server/$id'
     | '/server/new'
+    | '/deployments/'
     | '/server/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CommandCenterRoute: typeof CommandCenterRoute
-  DeploymentsRoute: typeof DeploymentsRoute
+  FirewallRoute: typeof FirewallRoute
   PackageRoute: typeof PackageRoute
   SecretsRoute: typeof SecretsRoute
+  DeploymentsNewRoute: typeof DeploymentsNewRoute
   ServerIdRoute: typeof ServerIdRoute
   ServerNewRoute: typeof ServerNewRoute
+  DeploymentsIndexRoute: typeof DeploymentsIndexRoute
   ServerIndexRoute: typeof ServerIndexRoute
 }
 
@@ -150,11 +176,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PackageRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/deployments': {
-      id: '/deployments'
-      path: '/deployments'
-      fullPath: '/deployments'
-      preLoaderRoute: typeof DeploymentsRouteImport
+    '/firewall': {
+      id: '/firewall'
+      path: '/firewall'
+      fullPath: '/firewall'
+      preLoaderRoute: typeof FirewallRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/command-center': {
@@ -178,6 +204,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ServerIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/deployments/': {
+      id: '/deployments/'
+      path: '/deployments'
+      fullPath: '/deployments/'
+      preLoaderRoute: typeof DeploymentsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/server/new': {
       id: '/server/new'
       path: '/server/new'
@@ -192,17 +225,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ServerIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/deployments/new': {
+      id: '/deployments/new'
+      path: '/deployments/new'
+      fullPath: '/deployments/new'
+      preLoaderRoute: typeof DeploymentsNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CommandCenterRoute: CommandCenterRoute,
-  DeploymentsRoute: DeploymentsRoute,
+  FirewallRoute: FirewallRoute,
   PackageRoute: PackageRoute,
   SecretsRoute: SecretsRoute,
+  DeploymentsNewRoute: DeploymentsNewRoute,
   ServerIdRoute: ServerIdRoute,
   ServerNewRoute: ServerNewRoute,
+  DeploymentsIndexRoute: DeploymentsIndexRoute,
   ServerIndexRoute: ServerIndexRoute,
 }
 export const routeTree = rootRouteImport
