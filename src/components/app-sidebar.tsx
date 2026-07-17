@@ -1,4 +1,4 @@
-import { LayoutDashboard, Server } from "lucide-react";
+import { KeyRound, LayoutDashboard, Package, Server, Ship, Terminal } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 
 import {
@@ -23,6 +23,26 @@ const items = [
     title: "Server",
     url: "/server",
     icon: Server,
+  },
+  {
+    title: "Command Center",
+    url: "/command-center",
+    icon: Terminal,
+  },
+  {
+    title: "Deployments",
+    url: "/deployments",
+    icon: Ship,
+  },
+  {
+    title: "Packages",
+    url: "/package",
+    icon: Package,
+  },
+  {
+    title: "Secrets",
+    url: "/secrets",
+    icon: KeyRound,
   },
 ];
 

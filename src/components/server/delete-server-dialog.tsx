@@ -16,14 +16,17 @@ interface DeleteServerDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   selectedCount: number;
+  onConfirm: () => Promise<void>;
 }
 
 export function DeleteServerDialog({
   open,
   onOpenChange,
   selectedCount,
+  onConfirm,
 }: DeleteServerDialogProps) {
   const [confirmText, setConfirmText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
 
   return (
     <Dialog
@@ -32,7 +35,6 @@ export function DeleteServerDialog({
         onOpenChange(next);
         if (!next) setConfirmText("");
       }}
-      c
     >
       <DialogContent className="rounded-sm">
         <DialogHeader>
@@ -51,12 +53,21 @@ export function DeleteServerDialog({
           className="rounded-sm"
         />
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} class>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button
             variant="destructive"
-            disabled={confirmText !== DELETE_CONFIRMATION_TEXT}
+            disabled={confirmText !== DELETE_CONFIRMATION_TEXT || isDeleting}
+            onClick={async () => {
+              setIsDeleting(true);
+              try {
+                await onConfirm();
+              } finally {
+                setIsDeleting(false);
+                setConfirmText("");
+              }
+            }}
           >
             Delete
           </Button>

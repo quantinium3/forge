@@ -9,10 +9,35 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SecretsRouteImport } from './routes/secrets'
+import { Route as PackageRouteImport } from './routes/package'
+import { Route as DeploymentsRouteImport } from './routes/deployments'
+import { Route as CommandCenterRouteImport } from './routes/command-center'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ServerIndexRouteImport } from './routes/server/index'
 import { Route as ServerNewRouteImport } from './routes/server/new'
+import { Route as ServerIdRouteImport } from './routes/server/$id'
 
+const SecretsRoute = SecretsRouteImport.update({
+  id: '/secrets',
+  path: '/secrets',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PackageRoute = PackageRouteImport.update({
+  id: '/package',
+  path: '/package',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DeploymentsRoute = DeploymentsRouteImport.update({
+  id: '/deployments',
+  path: '/deployments',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommandCenterRoute = CommandCenterRouteImport.update({
+  id: '/command-center',
+  path: '/command-center',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -28,39 +53,117 @@ const ServerNewRoute = ServerNewRouteImport.update({
   path: '/server/new',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ServerIdRoute = ServerIdRouteImport.update({
+  id: '/server/$id',
+  path: '/server/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/command-center': typeof CommandCenterRoute
+  '/deployments': typeof DeploymentsRoute
+  '/package': typeof PackageRoute
+  '/secrets': typeof SecretsRoute
+  '/server/$id': typeof ServerIdRoute
   '/server/new': typeof ServerNewRoute
   '/server/': typeof ServerIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/command-center': typeof CommandCenterRoute
+  '/deployments': typeof DeploymentsRoute
+  '/package': typeof PackageRoute
+  '/secrets': typeof SecretsRoute
+  '/server/$id': typeof ServerIdRoute
   '/server/new': typeof ServerNewRoute
   '/server': typeof ServerIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/command-center': typeof CommandCenterRoute
+  '/deployments': typeof DeploymentsRoute
+  '/package': typeof PackageRoute
+  '/secrets': typeof SecretsRoute
+  '/server/$id': typeof ServerIdRoute
   '/server/new': typeof ServerNewRoute
   '/server/': typeof ServerIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/server/new' | '/server/'
+  fullPaths:
+    | '/'
+    | '/command-center'
+    | '/deployments'
+    | '/package'
+    | '/secrets'
+    | '/server/$id'
+    | '/server/new'
+    | '/server/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/server/new' | '/server'
-  id: '__root__' | '/' | '/server/new' | '/server/'
+  to:
+    | '/'
+    | '/command-center'
+    | '/deployments'
+    | '/package'
+    | '/secrets'
+    | '/server/$id'
+    | '/server/new'
+    | '/server'
+  id:
+    | '__root__'
+    | '/'
+    | '/command-center'
+    | '/deployments'
+    | '/package'
+    | '/secrets'
+    | '/server/$id'
+    | '/server/new'
+    | '/server/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CommandCenterRoute: typeof CommandCenterRoute
+  DeploymentsRoute: typeof DeploymentsRoute
+  PackageRoute: typeof PackageRoute
+  SecretsRoute: typeof SecretsRoute
+  ServerIdRoute: typeof ServerIdRoute
   ServerNewRoute: typeof ServerNewRoute
   ServerIndexRoute: typeof ServerIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/secrets': {
+      id: '/secrets'
+      path: '/secrets'
+      fullPath: '/secrets'
+      preLoaderRoute: typeof SecretsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/package': {
+      id: '/package'
+      path: '/package'
+      fullPath: '/package'
+      preLoaderRoute: typeof PackageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/deployments': {
+      id: '/deployments'
+      path: '/deployments'
+      fullPath: '/deployments'
+      preLoaderRoute: typeof DeploymentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/command-center': {
+      id: '/command-center'
+      path: '/command-center'
+      fullPath: '/command-center'
+      preLoaderRoute: typeof CommandCenterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -82,11 +185,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ServerNewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/server/$id': {
+      id: '/server/$id'
+      path: '/server/$id'
+      fullPath: '/server/$id'
+      preLoaderRoute: typeof ServerIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CommandCenterRoute: CommandCenterRoute,
+  DeploymentsRoute: DeploymentsRoute,
+  PackageRoute: PackageRoute,
+  SecretsRoute: SecretsRoute,
+  ServerIdRoute: ServerIdRoute,
   ServerNewRoute: ServerNewRoute,
   ServerIndexRoute: ServerIndexRoute,
 }

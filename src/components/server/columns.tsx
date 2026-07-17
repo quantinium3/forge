@@ -1,7 +1,9 @@
 import { ColumnDef } from "@tanstack/react-table";
+import { Link } from "@tanstack/react-router";
 import { type SelectServer } from "@electron/db/schema/server";
 import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ServerRowActions } from "@/components/server/server-row-actions";
 
 export type ServerRow = SelectServer & { isOnline: boolean };
 
@@ -46,6 +48,15 @@ export const serverColumns: ColumnDef<ServerRow>[] = [
   {
     accessorKey: "name",
     header: "Name",
+    cell: ({ row }) => (
+      <Link
+        to="/server/$id"
+        params={{ id: row.original.id }}
+        className="font-medium hover:underline"
+      >
+        {row.original.name}
+      </Link>
+    ),
   },
   {
     accessorKey: "address",
@@ -70,5 +81,12 @@ export const serverColumns: ColumnDef<ServerRow>[] = [
         </span>
       );
     },
+  },
+  {
+    id: "actions",
+    header: "",
+    cell: ({ row }) => <ServerRowActions server={row.original} />,
+    enableSorting: false,
+    enableHiding: false,
   },
 ];

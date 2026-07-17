@@ -1,1 +1,12 @@
 # FORGE
+
+- [x] add server in sidebar
+- [x] create a table that showcases servers in table
+- [ ] add a add server button
+- [ ] on select of row, delete row button should show
+- [ ] create a form to add new server
+- [ ] on addition of server, it creates a ssh tunnel and installs
+  - [ ] nginx
+  - [ ] ufw
+  - [ ] docker
+  - [ ] kuznets as systemd service

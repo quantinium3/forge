@@ -1,9 +1,9 @@
-import * as React from "react";
+import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
-import { FolderOpenIcon } from "lucide-react";
+import { FolderOpenIcon, Loader2Icon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -18,6 +18,83 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
+import type { SelectServer } from "@electron/db/schema/server";
+import type { SelectLog } from "@electron/db/schema/log";
+
+const provisioningStatusText: Record<SelectServer["status"], string> = {
+  initializing: "Provisioning server...",
+  success: "Provisioning complete",
+  failed: "Provisioning failed",
+};
+
+const logLevelColor: Record<SelectLog["level"], string> = {
+  info: "text-foreground",
+  debug: "text-muted-foreground",
+  warn: "text-yellow-500",
+  error: "text-red-500",
+  fatal: "text-red-500",
+};
+
+function ProvisioningPanel({ serverId, status }: { serverId: string; status: SelectServer["status"] }) {
+  const [logs, setLogs] = useState<SelectLog[]>([]);
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    window.api.log.list(serverId).then((rows) => {
+      if (!cancelled) setLogs(rows.slice().reverse());
+    });
+
+    const offLog = window.ipcEvents.on("server:log", (_event, ...args) => {
+      const log = args[0] as SelectLog;
+      if (log.serverId !== serverId) return;
+      setLogs((prev) => (prev.some((l) => l.id === log.id) ? prev : [...prev, log]));
+    });
+
+    return () => {
+      cancelled = true;
+      offLog();
+    };
+  }, [serverId]);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ block: "end" });
+  }, [logs]);
+
+  return (
+    <Card className="mt-6 max-w-md">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          {status === "initializing" && <Loader2Icon className="size-4 animate-spin" />}
+          <span
+            className={cn(
+              status === "success" && "text-green-500",
+              status === "failed" && "text-red-500",
+            )}
+          >
+            {provisioningStatusText[status]}
+          </span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <ScrollArea className="h-64 rounded-md border bg-muted/30 p-2">
+          <div className="space-y-1 font-mono text-xs">
+            {logs.map((log) => (
+              <p key={log.id} className={logLevelColor[log.level]}>
+                {log.message}
+              </p>
+            ))}
+            <div ref={bottomRef} />
+          </div>
+        </ScrollArea>
+      </CardContent>
+    </Card>
+  );
+}
 
 export const Route = createFileRoute("/server/new")({
   component: NewServerPage,
@@ -33,6 +110,23 @@ const formSchema = z.object({
 });
 
 function NewServerPage() {
+  const navigate = useNavigate();
+  const [provisioning, setProvisioning] = useState<{
+    serverId: string;
+    status: SelectServer["status"];
+  } | null>(null);
+
+  const provisioningServerId = provisioning?.serverId;
+
+  useEffect(() => {
+    if (!provisioningServerId) return;
+    return window.ipcEvents.on("server:status-changed", (_event, ...args) => {
+      const payload = args[0] as { serverId: string; status: SelectServer["status"] };
+      if (payload.serverId !== provisioningServerId) return;
+      setProvisioning((prev) => (prev ? { ...prev, status: payload.status } : prev));
+    });
+  }, [provisioningServerId]);
+
   const form = useForm({
     defaultValues: {
       name: "",
@@ -46,20 +140,15 @@ function NewServerPage() {
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
-      toast("You submitted the following values:", {
-        description: (
-          <pre className="mt-2 w-[320px] overflow-x-auto rounded-md bg-code p-4 text-code-foreground">
-            <code>{JSON.stringify(value, null, 2)}</code>
-          </pre>
-        ),
-        position: "bottom-right",
-        classNames: {
-          content: "flex flex-col gap-2",
-        },
-        style: {
-          "--border-radius": "calc(var(--radius)  + 4px)",
-        } as React.CSSProperties,
-      });
+      try {
+        const server = await window.api.server.create(value);
+        setProvisioning({ serverId: server.id, status: server.status });
+      } catch (error) {
+        toast.error("Failed to add server", {
+          description: error instanceof Error ? error.message : String(error),
+          position: "bottom-right",
+        });
+      }
     },
   });
 
@@ -78,6 +167,7 @@ function NewServerPage() {
           form.handleSubmit();
         }}
       >
+        <fieldset disabled={!!provisioning} className="contents">
         <FieldGroup>
           <form.Field
             name="name"
@@ -235,18 +325,32 @@ function NewServerPage() {
             }}
           />
         </FieldGroup>
+        </fieldset>
       </form>
 
-      <div className="mt-6 max-w-md">
-        <Field orientation="horizontal">
-          <Button variant="outline" render={<Link to="/server" />}>
-            Cancel
-          </Button>
-          <Button type="submit" form="new-server-form">
-            Create server
-          </Button>
-        </Field>
-      </div>
+      {!provisioning && (
+        <div className="mt-6 max-w-md">
+          <Field orientation="horizontal">
+            <Button variant="outline" render={<Link to="/server" />}>
+              Cancel
+            </Button>
+            <Button type="submit" form="new-server-form">
+              Create server
+            </Button>
+          </Field>
+        </div>
+      )}
+
+      {provisioning && (
+        <>
+          <ProvisioningPanel serverId={provisioning.serverId} status={provisioning.status} />
+          <div className="mt-4 max-w-md">
+            <Button variant="outline" onClick={() => navigate({ to: "/server" })}>
+              Go to servers
+            </Button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
